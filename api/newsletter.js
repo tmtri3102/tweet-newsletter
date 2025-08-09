@@ -8,38 +8,39 @@ dotenv.config();
 import fetch from "node-fetch";
 import { createTransport } from "nodemailer";
 
-// --- Configuration from Environment Variables ---
+// --- Configuration from Environment Variables (static for all users) ---
 const X_BEARER_TOKEN = process.env.X_BEARER_TOKEN;
-const X_USER_ID = process.env.X_USER_ID;
-
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
-const EMAIL_TO = process.env.EMAIL_TO; // Recipient email address
 const EMAIL_FROM = process.env.EMAIL_FROM; // Verified SendGrid sender
 
 // --- Main Serverless Function Entry Point ---
 export default async (req, res) => {
-  // Basic validation for environment variables
-  if (
-    !X_BEARER_TOKEN ||
-    !X_USER_ID ||
-    !EMAIL_USER ||
-    !EMAIL_PASS ||
-    !EMAIL_TO ||
-    !EMAIL_FROM
-  ) {
+  // Get user-specific data from URL query parameters
+  const { user_id, recipient_email } = req.query;
+
+  // Basic validation for required parameters
+  if (!X_BEARER_TOKEN || !EMAIL_USER || !EMAIL_PASS || !EMAIL_FROM) {
     console.error(
-      "Missing environment variables. Please check your .env file or Vercel settings."
+      "Missing server-side environment variables. Please check Vercel settings."
     );
     return res
       .status(500)
-      .send("Configuration error: Missing environment variables.");
+      .send("Configuration error: Missing server-side environment variables.");
+  }
+
+  if (!user_id || !recipient_email) {
+    return res
+      .status(400)
+      .send(
+        "Missing required URL parameters: 'user_id' and 'recipient_email'."
+      );
   }
 
   try {
-    // 1. Fetch Latest 5 Tweets from X.com
+    // 1. Fetch Latest 5 Tweets from X.com using the provided user_id
     const tweetResponse = await fetch(
-      `https://api.twitter.com/2/users/${X_USER_ID}/tweets?max_results=5&tweet.fields=created_at`,
+      `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at`,
       {
         headers: {
           Authorization: `Bearer ${X_BEARER_TOKEN}`,
@@ -56,7 +57,7 @@ export default async (req, res) => {
     }
 
     const tweetData = await tweetResponse.json();
-    const tweets = tweetData.data || []; // Ensure 'data' array exists
+    const tweets = tweetData.data || [];
 
     // 2. Generate HTML Newsletter Content
     let newsletterHtml = `
@@ -118,7 +119,7 @@ export default async (req, res) => {
       tweets.forEach((tweet) => {
         const tweetUrl = `https://twitter.com/i/web/status/${tweet.id}`;
 
-        // This is the new HTML structure for a single tweet
+        // The user name and handle are now placeholders since the API call doesn't fetch them.
         newsletterHtml += `
           <div class="tweet-card">
               <div class="tweet-header">
@@ -156,13 +157,13 @@ export default async (req, res) => {
 
     const mailOptions = {
       from: `"Your Tweet Newsletter" <${EMAIL_FROM}>`,
-      to: EMAIL_TO,
+      to: recipient_email, // Now uses the user-provided email
       subject: `Your Weekly Tweet Newsletter - ${new Date().toLocaleDateString()}`,
       html: newsletterHtml,
     };
 
     await transporter.sendMail(mailOptions);
-    console.log(`Newsletter sent successfully to ${EMAIL_TO}!`);
+    console.log(`Newsletter sent successfully to ${recipient_email}!`);
 
     // Respond to the HTTP request
     res.status(200).send("Newsletter sent successfully!");
