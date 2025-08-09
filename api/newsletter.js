@@ -36,7 +36,7 @@ export default async (req, res) => {
       for (const user_id of user_ids) {
         // Updated API call to get full text and user details
         const tweetResponse = await fetch(
-          `https://api.twitter.com/2/users/${user_id}/tweets?max_results=15&tweet.fields=created_at,text&expansions=author_id&user.fields=username,name`,
+          `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at,text&expansions=author_id&user.fields=username,name`,
           {
             headers: { Authorization: `Bearer ${X_BEARER_TOKEN}` },
           }
@@ -45,17 +45,19 @@ export default async (req, res) => {
         if (tweetResponse.ok) {
           const tweetData = await tweetResponse.json();
           if (tweetData.data) {
-            // Store user details for easy lookup
             if (tweetData.includes && tweetData.includes.users) {
               tweetData.includes.users.forEach((user) => {
                 usersMap[user.id] = user;
               });
             }
-            // Add tweets from this user to the main list
             allTweets = allTweets.concat(tweetData.data);
           }
         } else {
-          console.error(`Failed to fetch tweets for user ID ${user_id}`);
+          // *** NEW LOGGING HERE ***
+          const errorResponse = await tweetResponse.text();
+          console.error(
+            `Failed to fetch tweets for user ID ${user_id}: ${tweetResponse.status} ${errorResponse}`
+          );
         }
       }
 
@@ -73,10 +75,10 @@ export default async (req, res) => {
       } else {
         allTweets.forEach((tweet) => {
           const tweetUrl = `https://twitter.com/i/web/status/${tweet.id}`;
-          const author = usersMap[tweet.author_id]; // Get the author's details from the map
+          const author = usersMap[tweet.author_id];
 
           newsletterHtml += `
-            <div style="padding: 16px; margin-bottom: 16px; border-bottom: 0.5px solid #ccc;">
+            <div style="border-bottom: 1px solid #e1e8ed; padding: 16px;">
               <p><strong>${author.name}</strong> (@${author.username})</p>
               <p>${tweet.text}</p>
               <a href="${tweetUrl}">Read on X.com</a>

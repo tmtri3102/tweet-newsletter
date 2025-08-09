@@ -51,7 +51,6 @@ export default async (req, res) => {
       subject: `Subscription Confirmed!`,
       html: `
         <div style="font-family: sans-serif;">
-          <h1>Thanks for subscribing!</h1>
           <p>You have successfully subscribed to the newsletter for the following IDs: ${user_ids.join(
             ", "
           )}.</p>
