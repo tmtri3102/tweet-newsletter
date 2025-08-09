@@ -65,40 +65,75 @@ export default async (req, res) => {
             <head>
                 <title>Your Weekly Tweet Newsletter</title>
                 <style>
-                    body { font-family: sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-                    h1 { color: #007bff; }
-                    ol { padding-left: 20px; }
-                    li { margin-bottom: 10px; }
-                    a { color: #007bff; text-decoration: none; }
-                    a:hover { text-decoration: underline; }
+                    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333;}
+                    .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+                    .tweet-card {
+                        border: 1px solid #e1e8ed;
+                        border-radius: 12px;
+                        padding: 16px;
+                        margin-bottom: 16px;
+                        background-color: #fff;
+                    }
+                    .tweet-header {
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 8px;
+                    }
+                    .tweet-avatar {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        margin-right: 12px;
+                    }
+                    .tweet-author {
+                        font-weight: bold;
+                        color: #14171a;
+                    }
+                    .tweet-handle {
+                        color: #657786;
+                        margin-left: 4px;
+                    }
+                    .tweet-text {
+                        font-size: 16px;
+                        line-height: 24px;
+                        margin-bottom: 8px;
+                    }
+                    .tweet-link {
+                        color: #1da1f2;
+                        text-decoration: none;
+                    }
                 </style>
             </head>
             <body>
                 <div class="container">
-                    <h1>Your Weekly Tweet Digest! 🐦</h1>
-                    <p>Here are your latest 5 tweets from X.com:</p>
-                    <ol>
         `;
 
     if (tweets.length === 0) {
-      newsletterHtml += `<li>No tweets found for this period.</li>`;
+      newsletterHtml += `<p>No tweets found for this period.</p>`;
     } else {
-      tweets.forEach((tweet, index) => {
-        // Construct the direct tweet URL
+      tweets.forEach((tweet) => {
         const tweetUrl = `https://twitter.com/i/web/status/${tweet.id}`;
-        newsletterHtml += `<li>${
-          index + 1
-        }. <a href="${tweetUrl}">${tweet.text.substring(
-          0,
-          100
-        )}... (click for full tweet)</a></li>`;
+
+        // This is the new HTML structure for a single tweet
+        newsletterHtml += `
+          <div class="tweet-card">
+              <div class="tweet-header">
+                  <img src="https://pbs.twimg.com/profile_images/1937166294333186048/-cN_wAtL_400x400.jpg" alt="Avatar" class="tweet-avatar">
+                  <div>
+                      <span class="tweet-author">Tomey</span>
+                      <span class="tweet-handle">@justtomey</span>
+                  </div>
+              </div>
+              <p class="tweet-text">
+                  ${tweet.text}
+              </p>
+              <a href="${tweetUrl}" class="tweet-link">Read on X.com</a>
+          </div>
+        `;
       });
     }
 
     newsletterHtml += `
-                    </ol>
-                    <p>Enjoy your digest!</p>
                 </div>
             </body>
             </html>
