@@ -12,7 +12,12 @@ export default async (req, res) => {
     return res.status(405).send("Method Not Allowed");
   }
 
-  const { user_ids, recipient_email } = req.body;
+  let { user_ids, recipient_email } = req.body;
+
+  // Added validation for user-friendliness
+  if (typeof user_ids === "string") {
+    user_ids = user_ids.split(",").map((id) => id.trim());
+  }
 
   if (
     !user_ids ||
@@ -20,7 +25,9 @@ export default async (req, res) => {
     !Array.isArray(user_ids) ||
     user_ids.length === 0
   ) {
-    return res.status(400).send("Missing required parameters.");
+    return res
+      .status(400)
+      .send("Missing required parameters or invalid format.");
   }
 
   const client = createClient({ url: REDIS_URL });
@@ -31,7 +38,6 @@ export default async (req, res) => {
       `Subscription saved for ${recipient_email} with IDs: ${user_ids}`
     );
 
-    // Create the confirmation email content
     const transporter = createTransport({
       host: "smtp.sendgrid.net",
       port: 587,
@@ -40,15 +46,15 @@ export default async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"Tweet Newsletter" <${EMAIL_FROM}>`,
+      from: `"Your Tweet Newsletter" <${EMAIL_FROM}>`,
       to: recipient_email,
       subject: `Subscription Confirmed!`,
       html: `
         <div style="font-family: sans-serif;">
-          <p>You have successfully subscribed to the newsletter for the following IDs:</p>
-          <ul>
-            ${user_ids.map((id) => `<li>${id}</li>`).join("")}
-          </ul>
+          <h1>Thanks for subscribing!</h1>
+          <p>You have successfully subscribed to the newsletter for the following IDs: ${user_ids.join(
+            ", "
+          )}.</p>
           <p>You will receive your first newsletter in the next scheduled run.</p>
         </div>
       `,
