@@ -87,7 +87,7 @@ export default async (req, res) => {
                         width: 48px;
                         height: 48px;
                         border-radius: 50%;
-                        margin-right: 4px;
+                        margin-right: 8px;
                     }
                     .tweet-author {
                         font-weight: bold;
