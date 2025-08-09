@@ -34,7 +34,9 @@ export default async (req, res) => {
       let usersMap = {};
 
       for (const user_id of user_ids) {
-        // Updated API call to get full text and user details
+        // *** ADDING A DELAY BEFORE EACH API CALL ***
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const tweetResponse = await fetch(
           `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at,text&expansions=author_id&user.fields=username,name`,
           {
@@ -53,7 +55,6 @@ export default async (req, res) => {
             allTweets = allTweets.concat(tweetData.data);
           }
         } else {
-          // *** NEW LOGGING HERE ***
           const errorResponse = await tweetResponse.text();
           console.error(
             `Failed to fetch tweets for user ID ${user_id}: ${tweetResponse.status} ${errorResponse}`
@@ -78,11 +79,10 @@ export default async (req, res) => {
           const author = usersMap[tweet.author_id];
 
           newsletterHtml += `
-            <div style="border-bottom: 1px solid #e1e8ed; padding: 16px;">
+            <div style="border-bottom: 0.5px solid #e1e8ed; padding: 16px;">
               <p><strong>${author.name}</strong> (@${author.username})</p>
               <p>${tweet.text}</p>
               <a href="${tweetUrl}">Read on X.com</a>
-              <p style="font-size: 0.8em; color: #666; margin-top: 10px;">User ID: ${tweet.author_id}</p>
             </div>
           `;
         });
