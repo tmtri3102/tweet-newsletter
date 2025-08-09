@@ -1,8 +1,8 @@
 {
-  "rewrites": [
+  "crons": [
     {
-      "source": "/api",
-      "destination": "/api/newsletter.js"
+      "path": "/api/newsletter.js",
+      "schedule": "0 9 * * *"
     }
   ]
 }

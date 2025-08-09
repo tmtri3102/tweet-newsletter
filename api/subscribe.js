@@ -1,0 +1,30 @@
+// api/subscribe.js
+import { kv } from "@vercel/kv";
+
+export default async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).send("Method Not Allowed");
+  }
+
+  const { user_ids, recipient_email } = req.body;
+
+  if (
+    !user_ids ||
+    !recipient_email ||
+    !Array.isArray(user_ids) ||
+    user_ids.length === 0
+  ) {
+    return res.status(400).send("Missing required parameters.");
+  }
+
+  try {
+    await kv.set(recipient_email, user_ids);
+    console.log(
+      `Subscription saved for ${recipient_email} with IDs: ${user_ids}`
+    );
+    res.status(200).send("Subscription successful!");
+  } catch (error) {
+    console.error("Error saving subscription:", error);
+    res.status(500).send("Failed to subscribe.");
+  }
+};
