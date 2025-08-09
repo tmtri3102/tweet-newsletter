@@ -5,6 +5,7 @@ dotenv.config();
 import fetch from "node-fetch";
 import { createTransport } from "nodemailer";
 import { createClient } from "redis";
+
 const X_BEARER_TOKEN = process.env.X_BEARER_TOKEN;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
@@ -17,7 +18,6 @@ export default async (req, res) => {
       .send("Configuration error: Missing server-side environment variables.");
   }
 
-  // New code to connect to the Redis database
   const client = createClient({ url: process.env.REDIS_URL });
   try {
     await client.connect();
@@ -29,12 +29,14 @@ export default async (req, res) => {
 
     for (const recipient_email of subscribers) {
       const user_ids_string = await client.get(recipient_email);
-      const user_ids = JSON.parse(user_ids_string); // Parse the string back into an array
+      const user_ids = JSON.parse(user_ids_string);
       let allTweets = [];
+      let usersMap = {};
 
       for (const user_id of user_ids) {
+        // Updated API call to get full text and user details
         const tweetResponse = await fetch(
-          `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at`,
+          `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at,text&expansions=author_id&user.fields=username,name`,
           {
             headers: { Authorization: `Bearer ${X_BEARER_TOKEN}` },
           }
@@ -43,9 +45,14 @@ export default async (req, res) => {
         if (tweetResponse.ok) {
           const tweetData = await tweetResponse.json();
           if (tweetData.data) {
-            allTweets = allTweets.concat(
-              tweetData.data.map((tweet) => ({ ...tweet, user_id }))
-            );
+            // Store user details for easy lookup
+            if (tweetData.includes && tweetData.includes.users) {
+              tweetData.includes.users.forEach((user) => {
+                usersMap[user.id] = user;
+              });
+            }
+            // Add tweets from this user to the main list
+            allTweets = allTweets.concat(tweetData.data);
           }
         } else {
           console.error(`Failed to fetch tweets for user ID ${user_id}`);
@@ -59,7 +66,6 @@ export default async (req, res) => {
         <html>
         <body>
             <div style="font-family: sans-serif;">
-            <h1>Your Weekly Newsletter</h1>
       `;
 
       if (allTweets.length === 0) {
@@ -67,11 +73,14 @@ export default async (req, res) => {
       } else {
         allTweets.forEach((tweet) => {
           const tweetUrl = `https://twitter.com/i/web/status/${tweet.id}`;
+          const author = usersMap[tweet.author_id]; // Get the author's details from the map
+
           newsletterHtml += `
             <div style="border: 1px solid #e1e8ed; padding: 16px; margin-bottom: 16px; border-radius: 8px;">
+              <p><strong>${author.name}</strong> (@${author.username})</p>
               <p>${tweet.text}</p>
               <a href="${tweetUrl}">Read on X.com</a>
-              <p style="font-size: 0.8em; color: #666; margin-top: 10px;">User ID: ${tweet.user_id}</p>
+              <p style="font-size: 0.8em; color: #666; margin-top: 10px;">User ID: ${tweet.author_id}</p>
             </div>
           `;
         });
@@ -106,6 +115,6 @@ export default async (req, res) => {
     console.error("Error in newsletter generation or sending:", error);
     res.status(500).send(`Error processing request: ${error.message}`);
   } finally {
-    await client.disconnect(); // Disconnect from the Redis client
+    await client.disconnect();
   }
 };
