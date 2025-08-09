@@ -10,9 +10,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@vercel/kv": "^0.2.1",
     "dotenv": "^17.2.1",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.5"
+    "nodemailer": "^7.0.5",
+    "redis": "^5.8.0"
   }
 }

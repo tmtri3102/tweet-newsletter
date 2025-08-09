@@ -1,5 +1,4 @@
-// api/subscribe.js
-import { kv } from "@vercel/kv";
+import { createClient } from "redis";
 
 export default async (req, res) => {
   if (req.method !== "POST") {
@@ -17,8 +16,11 @@ export default async (req, res) => {
     return res.status(400).send("Missing required parameters.");
   }
 
+  const client = createClient({ url: process.env.REDIS_URL });
+  await client.connect();
+
   try {
-    await kv.set(recipient_email, user_ids);
+    await client.set(recipient_email, JSON.stringify(user_ids)); // Redis stores strings, so you need to stringify
     console.log(
       `Subscription saved for ${recipient_email} with IDs: ${user_ids}`
     );
@@ -26,5 +28,7 @@ export default async (req, res) => {
   } catch (error) {
     console.error("Error saving subscription:", error);
     res.status(500).send("Failed to subscribe.");
+  } finally {
+    await client.disconnect();
   }
 };
