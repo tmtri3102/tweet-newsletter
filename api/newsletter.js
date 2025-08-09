@@ -38,9 +38,9 @@ export default async (req, res) => {
   }
 
   try {
-    // 1. Fetch Latest 5 Tweets from X.com using the provided user_id
+    // 1. Fetch Latest 30 Tweets from X.com using the provided user_id
     const tweetResponse = await fetch(
-      `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at`,
+      `https://api.twitter.com/2/users/${user_id}/tweets?max_results=30&tweet.fields=created_at`,
       {
         headers: {
           Authorization: `Bearer ${X_BEARER_TOKEN}`,
@@ -68,45 +68,6 @@ export default async (req, res) => {
                 <style>
                     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333;}
                     .container { max-width: 600px; margin: 20px auto; padding: 20px; }
-                    .tweet-card {
-                        border: 1px solid #e1e8ed;
-                        border-radius: 12px;
-                        padding: 16px;
-                        margin-bottom: 16px;
-                        background-color: #fff;
-                    }
-                    .tweet-header {
-                        display: flex;
-                        align-items: center;
-                        margin-bottom: 8px;
-                    }
-                    .tweet-info {
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .tweet-avatar {
-                        width: 48px;
-                        height: 48px;
-                        border-radius: 50%;
-                        margin-right: 8px;
-                    }
-                    .tweet-author {
-                        font-weight: bold;
-                        color: #14171a;
-                    }
-                    .tweet-handle {
-                        color: #657786;
-                        margin-left: 4px;
-                    }
-                    .tweet-text {
-                        font-size: 16px;
-                        line-height: 24px;
-                        margin-bottom: 8px;
-                    }
-                    .tweet-link {
-                        color: #1da1f2;
-                        text-decoration: none;
-                    }
                 </style>
             </head>
             <body>
@@ -118,21 +79,10 @@ export default async (req, res) => {
     } else {
       tweets.forEach((tweet) => {
         const tweetUrl = `https://twitter.com/i/web/status/${tweet.id}`;
-
-        // The user name and handle are now placeholders since the API call doesn't fetch them.
         newsletterHtml += `
-          <div class="tweet-card">
-              <div class="tweet-header">
-                  <img src="https://res.cloudinary.com/ddp6tdsln/image/upload/v1754709936/d7j15szblkvzdp53vwt0.png" alt="Avatar" class="tweet-avatar">
-                  <div class="tweet-info">
-                      <span class="tweet-author">Tomey</span>
-                      <span class="tweet-handle">@justtomey</span>
-                  </div>
-              </div>
-              <p class="tweet-text">
-                  ${tweet.text}
-              </p>
-              <a href="${tweetUrl}" class="tweet-link">Read on X.com</a>
+          <div style="margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid #e1e8ed;">
+              <p style="font-size: 16px; line-height: 24px; margin-bottom: 8px;">${tweet.text}</p>
+              <a href="${tweetUrl}" style="color: #1da1f2; text-decoration: none; font-size: 14px;">Read on X.com</a>
           </div>
         `;
       });
