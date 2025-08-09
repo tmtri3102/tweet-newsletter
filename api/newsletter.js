@@ -118,7 +118,7 @@ export default async (req, res) => {
         newsletterHtml += `
           <div class="tweet-card">
               <div class="tweet-header">
-                  <img src="https://pbs.twimg.com/profile_images/1937166294333186048/-cN_wAtL_400x400.jpg" alt="Avatar" class="tweet-avatar">
+                  <img src="https://res.cloudinary.com/ddp6tdsln/image/upload/v1754709936/d7j15szblkvzdp53vwt0.png" alt="Avatar" class="tweet-avatar">
                   <div>
                       <span class="tweet-author">Tomey</span>
                       <span class="tweet-handle">@justtomey</span>
