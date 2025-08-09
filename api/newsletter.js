@@ -79,11 +79,15 @@ export default async (req, res) => {
                         align-items: center;
                         margin-bottom: 8px;
                     }
+                    .tweet-info {
+                        display: flex;
+                        flex-direction: column;
+                    }
                     .tweet-avatar {
                         width: 48px;
                         height: 48px;
                         border-radius: 50%;
-                        margin-right: 12px;
+                        margin-right: 4px;
                     }
                     .tweet-author {
                         font-weight: bold;
@@ -119,7 +123,7 @@ export default async (req, res) => {
           <div class="tweet-card">
               <div class="tweet-header">
                   <img src="https://res.cloudinary.com/ddp6tdsln/image/upload/v1754709936/d7j15szblkvzdp53vwt0.png" alt="Avatar" class="tweet-avatar">
-                  <div>
+                  <div class="tweet-info">
                       <span class="tweet-author">Tomey</span>
                       <span class="tweet-handle">@justtomey</span>
                   </div>
