@@ -4,8 +4,7 @@ dotenv.config();
 
 import fetch from "node-fetch";
 import { createTransport } from "nodemailer";
-import { kv } from "@vercel/kv";
-
+import { createClient } from "redis";
 const X_BEARER_TOKEN = process.env.X_BEARER_TOKEN;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
@@ -18,14 +17,19 @@ export default async (req, res) => {
       .send("Configuration error: Missing server-side environment variables.");
   }
 
+  // New code to connect to the Redis database
+  const client = createClient({ url: process.env.REDIS_URL });
   try {
-    const subscribers = await kv.keys("*");
+    await client.connect();
+
+    const subscribers = await client.keys("*");
     if (subscribers.length === 0) {
       return res.status(200).send("No subscribers found. Exiting.");
     }
 
     for (const recipient_email of subscribers) {
-      const user_ids = await kv.get(recipient_email);
+      const user_ids_string = await client.get(recipient_email);
+      const user_ids = JSON.parse(user_ids_string); // Parse the string back into an array
       let allTweets = [];
 
       for (const user_id of user_ids) {
@@ -101,5 +105,7 @@ export default async (req, res) => {
   } catch (error) {
     console.error("Error in newsletter generation or sending:", error);
     res.status(500).send(`Error processing request: ${error.message}`);
+  } finally {
+    await client.disconnect(); // Disconnect from the Redis client
   }
 };
