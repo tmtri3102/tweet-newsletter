@@ -36,7 +36,7 @@ export default async (req, res) => {
       for (const user_id of user_ids) {
         // Updated API call to get full text and user details
         const tweetResponse = await fetch(
-          `https://api.twitter.com/2/users/${user_id}/tweets?max_results=5&tweet.fields=created_at,text&expansions=author_id&user.fields=username,name`,
+          `https://api.twitter.com/2/users/${user_id}/tweets?max_results=15&tweet.fields=created_at,text&expansions=author_id&user.fields=username,name`,
           {
             headers: { Authorization: `Bearer ${X_BEARER_TOKEN}` },
           }
