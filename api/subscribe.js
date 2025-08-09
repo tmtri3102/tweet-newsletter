@@ -40,15 +40,15 @@ export default async (req, res) => {
     });
 
     const mailOptions = {
-      from: `"Your Tweet Newsletter" <${EMAIL_FROM}>`,
+      from: `"Tweet Newsletter" <${EMAIL_FROM}>`,
       to: recipient_email,
       subject: `Subscription Confirmed!`,
       html: `
         <div style="font-family: sans-serif;">
-          <h1>Thanks for subscribing!</h1>
-          <p>You have successfully subscribed to the newsletter for the following Twitter User IDs: ${user_ids.join(
-            ", "
-          )}.</p>
+          <p>You have successfully subscribed to the newsletter for the following IDs:</p>
+          <ul>
+            ${user_ids.map((id) => `<li>${id}</li>`).join("")}
+          </ul>
           <p>You will receive your first newsletter in the next scheduled run.</p>
         </div>
       `,

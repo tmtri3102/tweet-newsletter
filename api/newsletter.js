@@ -76,7 +76,7 @@ export default async (req, res) => {
           const author = usersMap[tweet.author_id]; // Get the author's details from the map
 
           newsletterHtml += `
-            <div style="border: 1px solid #e1e8ed; padding: 16px; margin-bottom: 16px; border-radius: 8px;">
+            <div style="padding: 16px; margin-bottom: 16px; border-bottom: 0.5px solid #ccc;">
               <p><strong>${author.name}</strong> (@${author.username})</p>
               <p>${tweet.text}</p>
               <a href="${tweetUrl}">Read on X.com</a>
