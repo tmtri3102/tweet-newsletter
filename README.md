@@ -19,6 +19,6 @@ Then:
 
 If you have any issues, please create an issue on the [GitHub repository](https://github.com/tmtri3102/tweet-newsletter/issues).
 
-<strong>The newsletter is sent out at 16:00 GMT+7 daily</strong>
+<strong>The newsletter is sent out at 16:23 GMT+7 daily</strong>
 
 Potential next step: Chrome Extension to both automatically get Twitter IDs and subscribe to newsletters. Email me if you have any ideas: tomtran310251@proton.me
